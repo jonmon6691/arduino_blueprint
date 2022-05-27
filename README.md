@@ -1,6 +1,8 @@
 # arduino_blueprint
 An Adafruit Feather based UV exposure meter for making cyanotypes and other alt process prints
 
+![Meter](docs/meter.jpg)
+
 # Hardware
 - Adafruit HUZZAH32 – ESP32 Feather Board 
   - [https://www.adafruit.com/product/3405](https://www.adafruit.com/product/3405)
