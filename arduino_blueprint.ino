@@ -86,7 +86,7 @@ void setup() {
 		display.print(".");
 		display.display();
 	}
-	if (MDNS.begin("cooker")) {
+	if (MDNS.begin("blueprint")) {
 		Serial.println("MDNS responder started");
 	}
 
