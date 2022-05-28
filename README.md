@@ -14,7 +14,11 @@ Target exposure mode will take an exposure value determined in Raw Exposure mode
 To enter a target exposure, make sure Blueprint is connected to wifi. There will be an antenna symbol in the upper right corner. Then, on a device connected to the same network, navigate to http://blueprint.local/set/10000 . This will set the target exposure to 10,000 units. To set a different value, edit the URL with the desired value. Exposures you use often can be bookmarked or kept as links in a table with information about your negatives for example.
 
 ## Reseting exposure
-The exposure may be reset by navigating to http://blueprint.local/reset while the Blueprint is connected to wifi. Alternatively, pressing the reset button on the Blueprint will reboot the device thererby reseting the exposure as well.
+The exposure can be reset in one of 3 ways:
+
+1. Pressing and holding Button A for at least half a second
+2. By navigating to http://blueprint.local/reset while the Blueprint is connected to wifi. 
+3. Alternatively, pressing the hard reset button on the Blueprint will reboot the device thererby reseting the exposure as well as reconnecting to wifi
 
 ## Building (and Connecting to WiFi)
 Copy the file `wifi_login.h.example` to `wifi_login.h`. Then edit it and change these lines, leaving the "quote marks" intact:

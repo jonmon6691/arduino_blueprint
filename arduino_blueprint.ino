@@ -35,6 +35,10 @@ const char index_html[] PROGMEM = \
 #define BUTTON_B 32
 #define BUTTON_C 14
 
+#define RESET_BUTTON BUTTON_A
+unsigned long millis_last_reset_falling_edge;
+int last_reset_buttons_state;
+
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
 
@@ -112,6 +116,10 @@ void setup() {
 	exposure = 0;
 	full_exposure = 0;
 	millis_start = 0;
+
+	// Init buttons
+	millis_last_reset_falling_edge = 0;
+	last_reset_buttons_state = 1;
 
 	// Set http server endpoints
 	server.on("/", serve_index);
@@ -203,6 +211,22 @@ void loop() {
 		
 		update_display();
 	}
+
+	// Process buttons
+	int reset_button_state = digitalRead(RESET_BUTTON);
+	// Falling edge (being pressed)
+	if (last_reset_buttons_state == 1 && reset_button_state == 0) {
+		millis_last_reset_falling_edge = millis();
+	}
+	// Low (being held)
+	if (last_reset_buttons_state == 0 && reset_button_state == 0) {
+		// If button has been held for 500ms, then reset
+		if (millis() - millis_last_reset_falling_edge > 500) {
+			exposure = 0;
+			millis_start = 0;
+		}
+	}
+	last_reset_buttons_state = reset_button_state;
 	
 	// Process http requests
 	server.handleClient();
