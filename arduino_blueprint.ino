@@ -20,6 +20,7 @@
 #include <ESPmDNS.h>
 #include <uri/UriBraces.h>
 #include <uri/UriRegex.h>
+#include "wifi_login.h"
 
 // Served back to the client after any valid request
 const char index_html[] PROGMEM = \
@@ -33,15 +34,6 @@ const char index_html[] PROGMEM = \
 #define BUTTON_A 15
 #define BUTTON_B 32
 #define BUTTON_C 14
-
-// Wifi constants
-#ifndef WIFI_SSID
-#define WIFI_SSID "your_ssid"
-#endif
-
-#ifndef WIFI_PASSWORD
-#define WIFI_PASSWORD "hunter2"
-#endif
 
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;

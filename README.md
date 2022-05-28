@@ -16,15 +16,15 @@ To enter a target exposure, make sure Blueprint is connected to wifi. There will
 ## Reseting exposure
 The exposure may be reset by navigating to http://blueprint.local/reset while the Blueprint is connected to wifi. Alternatively, pressing the reset button on the Blueprint will reboot the device thererby reseting the exposure as well.
 
-## Connecting to WiFi
-Edit the file `arduino_blueprint.ino`. Look for these lines and change their values, leaving the "quote marks" intact:
-```arduino_blueprint.ino
+## Building (and Connecting to WiFi)
+Copy the file `wifi_login.h.example` to `wifi_login.h`. Then edit it and change these lines, leaving the "quote marks" intact:
+```wifi_login.h
 #define WIFI_SSID "your ssid"
 ...
 #define WIFI_PASSWORD "enter your wifi password here"
 ```
 
-After uploading the sketch, when the Blueprint powers on, it will show "Connecting to your_ssid..." on the screen. Ensure this matches the ssid that you set. While the Blueprint is connected to wifi, there will be a small antenna symbol in the upper right corner of the screen. Navigate to http://blueprint.local/ on a device connected to the same network to see a simple home page with example links to the set and reset functions.
+Build using the Arduino IDE or compatible IDE such as VS Code. After uploading the sketch, when the Blueprint powers on, it will show "Connecting to your_ssid..." on the screen. Ensure this matches the ssid that you set. While the Blueprint is connected to wifi, there will be a small antenna symbol in the upper right corner of the screen. Navigate to http://blueprint.local/ on a device connected to the same network to see a simple home page with example links to the set and reset functions.
 
 Note: Blueprint uses a technology called "mdns" to make itself available on your local network via the "cooker.local" domain name. Unfortnately, as of spring 2022, mdns is not widely supported on Android devices. If you are having trouble connecting, search the internet to find out if your device supports mdns. 
 
