@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <math.h>
 
 // OLED Headers
 #include <Adafruit_SH110X.h>
@@ -42,6 +43,12 @@ int last_reset_buttons_state;
 #define SET_TARGET_BUTTON BUTTON_B
 unsigned long millis_last_set_target_falling_edge;
 int last_set_target_state;
+
+#define UNITS_BUTTON BUTTON_C
+unsigned long millis_last_units_falling_edge;
+int units_wait_for_rising_edge;
+int last_units_state;
+int units_pct_or_stops; // 0 = percent, 1 = stops
 
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
@@ -126,6 +133,11 @@ void setup() {
 	last_reset_buttons_state = 1;
 	millis_last_set_target_falling_edge = 0;
 	last_set_target_state = 1;
+	millis_last_units_falling_edge = 0;
+	units_wait_for_rising_edge = 0;
+	last_units_state = 1;
+
+	units_pct_or_stops = 0;
 
 	// Set http server endpoints
 	server.on("/", serve_index);
@@ -163,16 +175,28 @@ void update_display() {
 	display.setCursor(1,1+8);
 	display.setTextSize(1); display.println("Exposure: ");
 	display.setCursor(1,1+8+8+30);
-	// Show exposure as a percentage unless a full exposure hasn't been set
-	if (full_exposure > 0) {
-		float progress = (float) exposure * 100.0 / (float) full_exposure;
-		if (progress < 10.0) 
-			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.print(progress, 2); display.println("%");}
-		else if (progress < 100.0)
-			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.print(progress, 1); display.println("%");}
-		else 
-			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.print(progress, 0); display.println("%");}
-	} else {
+	if (full_exposure > 0) { // Target Exposire mode
+		float progress = (float) exposure / (float) full_exposure;
+		if (units_pct_or_stops == 0) { // Percentage units
+			progress *= 100;
+			display.setFont(FONT_STRUCT_24); 
+			display.setTextSize(1);
+			if (progress < 10.0) {display.print(progress, 2); display.println("%");}
+			else if (progress < 100.0) {display.print(progress, 1); display.println("%");}
+			else {display.print(progress, 0); display.println("%");}
+		} else { // EV Stop Units
+			display.setCursor(1,1+8+8+20);
+			display.setFont(FONT_STRUCT_18);
+			display.setTextSize(1);
+			progress = log2f(progress);
+			if (progress < -99.9) {display.print("-99.9"); display.println("'");} 
+			else if (progress < -9.99) {display.print(progress, 1); display.println("'");}
+			else {
+				if (progress >= 0) display.print("+");
+				display.print(progress, 2); display.println("'");
+			}
+		}
+	} else { // Raw Exposure mode
 		if (exposure < 1E5) 
 			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.println(exposure);}
 		else if (exposure < 1E6)
@@ -253,6 +277,27 @@ void loop() {
 	}
 	last_set_target_state = set_target_button_state;
 
+	//Process units button
+	int units_button_state = digitalRead(UNITS_BUTTON);
+	// Falling edge (being pressed)
+	if (last_units_state == 1 && units_button_state == 0) {
+		millis_last_units_falling_edge = millis();
+	}
+	// Low (being held)
+	if (last_units_state == 0 && units_button_state == 0) {
+		// If button has been held for 500ms, then toggle units
+		if (millis() - millis_last_units_falling_edge > 50 && \
+				units_wait_for_rising_edge == 0) {
+			units_pct_or_stops = !units_pct_or_stops;
+			units_wait_for_rising_edge = 1;
+			update_display();
+		}
+	}
+	// Rising edge (being released)
+	if (last_units_state == 0 && units_button_state == 1) {
+		units_wait_for_rising_edge = 0;
+	}
+	last_units_state = units_button_state;
 	
 	// Process http requests
 	server.handleClient();
