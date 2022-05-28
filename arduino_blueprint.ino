@@ -39,6 +39,10 @@ const char index_html[] PROGMEM = \
 unsigned long millis_last_reset_falling_edge;
 int last_reset_buttons_state;
 
+#define SET_TARGET_BUTTON BUTTON_B
+unsigned long millis_last_set_target_falling_edge;
+int last_set_target_state;
+
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
 
@@ -120,6 +124,8 @@ void setup() {
 	// Init buttons
 	millis_last_reset_falling_edge = 0;
 	last_reset_buttons_state = 1;
+	millis_last_set_target_falling_edge = 0;
+	last_set_target_state = 1;
 
 	// Set http server endpoints
 	server.on("/", serve_index);
@@ -212,7 +218,7 @@ void loop() {
 		update_display();
 	}
 
-	// Process buttons
+	// Process reset button
 	int reset_button_state = digitalRead(RESET_BUTTON);
 	// Falling edge (being pressed)
 	if (last_reset_buttons_state == 1 && reset_button_state == 0) {
@@ -225,8 +231,28 @@ void loop() {
 			exposure = 0;
 			millis_start = 0;
 		}
+		// If button has been held for 2s, then also clear the target exposure
+		if (millis() - millis_last_reset_falling_edge > 2000) {
+			full_exposure = 0;
+		}
 	}
 	last_reset_buttons_state = reset_button_state;
+
+	//Process set target button
+	int set_target_button_state = digitalRead(SET_TARGET_BUTTON);
+	// Falling edge (being pressed)
+	if (last_set_target_state == 1 && set_target_button_state == 0) {
+		millis_last_set_target_falling_edge = millis();
+	}
+	// Low (being held)
+	if (last_set_target_state == 0 && set_target_button_state == 0) {
+		// If button has been held for 500ms, then set target
+		if (millis() - millis_last_set_target_falling_edge > 500) {
+			full_exposure = exposure;
+		}
+	}
+	last_set_target_state = set_target_button_state;
+
 	
 	// Process http requests
 	server.handleClient();

@@ -3,15 +3,28 @@ An Adafruit Feather based UV exposure meter for making cyanotypes and other alt 
 
 ![Meter](docs/meter.jpg)
 
+## Buttons
+![Buttons](docs/buttons.jpg)
+- **Button A: Clear Current/Target Exposure Button.** Press and hold for half a second to clear the current exposure. Keep holding for 2 seconds to clear the current target exposure and go back to raw exposure mode.
+- **Button B: Set Target Exposure Button.** Press and hold for half a second to set the current exposure as the target exposure. You can then clear back to 0% by pressing and holding Button A for half a second.
+- **Button C**: Not used.
+
 ## Raw Exposure mode
 By default, Blueprint starts in Raw Exposure mode when it powers on. You can tell you're in raw exposure mode because the exposure value will _not_ have a percent symbol (%) after it
 
 Use this mode to determine an exposure value that works well for a given negative. Then note the value after exposing and make adjustments depending on the result of the print. Save this number to set up target exposure mode.
 
+To enter raw exposure mode after setting a target, you must clear the current exposure and the target exposure. To do this, hold Button A for 2 seconds.
+
 ## Target Exposure mode
 Target exposure mode will take an exposure value determined in Raw Exposure mode and then display the exposure as a percentage of that raw value. Use this mode when printing a negative where you've already determined your desired exposure previously. You know you are in Target Exposure mode when the exposure value ends with a percent sign (%).
 
-To enter a target exposure, make sure Blueprint is connected to wifi. There will be an antenna symbol in the upper right corner. Then, on a device connected to the same network, navigate to http://blueprint.local/set/10000 . This will set the target exposure to 10,000 units. To set a different value, edit the URL with the desired value. Exposures you use often can be bookmarked or kept as links in a table with information about your negatives for example.
+There are two ways to enter Target Exposure mode:
+
+1. After arriving at a desired exposure in Raw Exposure mode, press and hold Button B for half a second. This will set the current exposure as the target.
+2. Enter a cutsom exposure through the web interface. First make sure Blueprint is connected to wifi. There will be an antenna symbol in the upper right corner. Then, on a device connected to the same network, navigate to http://blueprint.local/set/10000 . This will set the target exposure to 10,000 units. To set a different value, edit the URL with the desired value. Exposures you use often can be bookmarked or kept as links in a table with information about your negatives for example.
+
+To exit Target Exposure mode, press and hold Button A for 2 seconds. You will see the current exposure reset, keep holding until the percent sign goes away.
 
 ## Reseting exposure
 The exposure can be reset in one of 3 ways:
