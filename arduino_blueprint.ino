@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
+// OLED Headers
 #include <Adafruit_SH110X.h>
 #include <Adafruit_GFX.h>
 #include "RobotoMono_Bold24pt7b.h"
@@ -9,8 +10,10 @@
 #define FONT_STRUCT_24 &RobotoMono_Bold24pt7b
 #define FONT_STRUCT_18 &RobotoMono_Bold18pt7b
 
+// Light sensor header
 #include "Adafruit_LTR390.h"
 
+// Wifi and server headers
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
@@ -18,10 +21,12 @@
 #include <uri/UriBraces.h>
 #include <uri/UriRegex.h>
 
+// Served back to the client after any valid request
 const char index_html[] PROGMEM = \
 "<body style=\"float:left\"><ul><meta name=\"viewport\" content=\"width=device-width, initial-scale=2\">"
 "<li><a href=\"/reset\">Reset Exposure</a></li>"
-"<li><a href=\"/set/10000\">Set 10k</a></li>"
+"<li><a href=\"/set/0\">Raw Exposure mode</a></li>"
+"<li><a href=\"/set/10000\">Target Exposure mode: 10k units</a></li>"
 "</ul></body>\n";
 
 // Buttons on the OLED display
