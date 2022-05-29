@@ -27,7 +27,6 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <uri/UriBraces.h>
-#include <uri/UriRegex.h>
 #include "wifi_login.h"
 
 // Served back to the client after any valid request
@@ -45,7 +44,10 @@ const char index_html[] PROGMEM = \
 
 struct button clear_button, set_target_button, units_button;
 
-int units_pct_or_stops; // 0 = percent, 1 = stops
+int units_mode;
+#define UNITS_MODE_PERCENT 0
+#define UNITS_MODE_STOPS 1
+#define UNITS_MODE_RAW 2
 
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
@@ -64,13 +66,15 @@ volatile SemaphoreHandle_t timerSemaphore;
 
 unsigned long intensity;
 unsigned long exposure;
-unsigned long full_exposure;
+unsigned long target_exposure;
 unsigned long millis_start;
 unsigned long millis_end;
 
 void setup() {
 	// Init display
 	display.begin(0x3C, true); // Address 0x3C default
+	display.clearDisplay();
+	display.display();
 	delay(250);
 	display.setRotation(1);
 	display.setTextSize(1);
@@ -114,7 +118,7 @@ void setup() {
 
 	// Init exposure
 	exposure = 0;
-	full_exposure = 0;
+	target_exposure = 0;
 	millis_start = 0;
 
 	// Init buttons
@@ -122,7 +126,7 @@ void setup() {
 	init_button(&set_target_button, BUTTON_B);
 	init_button(&units_button, BUTTON_C);
 
-	units_pct_or_stops = 0;
+	units_mode = UNITS_MODE_PERCENT;
 
 	// Set http server endpoints
 	server.on("/", serve_index);
@@ -142,7 +146,7 @@ void serve_reset_exposure() {
 }
 
 void serve_set_exposure() {
-	full_exposure = strtoul(server.pathArg(0).c_str(), NULL, 10);
+	target_exposure = strtoul(server.pathArg(0).c_str(), NULL, 10);
 	serve_index();
 }
 
@@ -153,49 +157,59 @@ void ARDUINO_ISR_ATTR onTimer(){
 
 void update_display() {
 	display.clearDisplay();
-	display.setCursor(1,1);
 
-	// Update exposure data
-	display.setTextSize(1); display.print("Intensity: "); display.println(intensity);
+	display.setCursor(1,1);
+	display.print("Intensity: ");
+	display.println(intensity);
+
 	display.setCursor(1,9);
-	display.setTextSize(1); display.println("Exposure: ");
-	if (full_exposure > 0) { // Target Exposire mode
-		float progress = (float) exposure / (float) full_exposure;
-		if (units_pct_or_stops == 0) { // Percentage units
-			progress *= 100;
-			display.setCursor(1,47);
-			display.setFont(FONT_PCT); 
-			display.setTextSize(1);
-			if (progress < 10.0) {display.print(progress, 2); display.println("%");}
-			else if (progress < 100.0) {display.print(progress, 1); display.println("%");}
-			else {display.print(progress, 0); display.println("%");}
-		} else { // EV Stop Units
-			display.setCursor(1,45);
-			display.setFont(FONT_EVS);
-			display.setTextSize(1);
-			progress = log2f(progress);
-			if (progress < -99.9) {display.print("-99.9"); display.println("&");} 
-			else if (progress < -9.99) {display.print(progress, 1); display.println("&");}
-			else {
-				if (progress >= 0) display.print("+");
-				display.print(progress, 2); display.println("&");
-			}
-		}
-	} else { // Raw Exposure mode
+	display.println("Exposure: ");
+
+	// Raw Exposure mode
+	if ( ! target_exposure || units_mode == UNITS_MODE_RAW) {
 		if (exposure < 1E4) 
-			{display.setCursor(1,47); display.setFont(FONT_PCT); display.setTextSize(1); display.println(exposure);}
+			{display.setCursor(1,47); display.setFont(FONT_PCT); display.println(exposure);}
 		else if (exposure < 1E6)
-			{display.setCursor(1,42); display.setFont(FONT_RAW); display.setTextSize(1); display.println(exposure);}
+			{display.setCursor(1,42); display.setFont(FONT_RAW); display.println(exposure);}
 		else
-			{display.setCursor(1,39); display.setFont(FONT_RAW_E6); display.setTextSize(1); display.println(exposure);}
-	}
+			{display.setCursor(1,39); display.setFont(FONT_RAW_E6); display.println(exposure);}
+	// Target Exposure mode, percent units
+	} else if (units_mode == UNITS_MODE_PERCENT) {
+		float progress = (float)exposure * 100.0 / (float)target_exposure;
+		display.setCursor(1,47);
+		display.setFont(FONT_PCT); 
+		if (progress < 10.0) 
+			{display.print(progress, 2); display.println("%");}
+		else if (progress < 100.0) 
+			{display.print(progress, 1); display.println("%");}
+		else 
+			{display.print(progress, 0); display.println("%");}
+	// Target Exposure mode, ev stops units
+	} else if (units_mode == UNITS_MODE_STOPS) {
+		float progress = log2f( (float)exposure / (float)target_exposure);
+		display.setCursor(1,45);
+		display.setFont(FONT_EVS);
+		// Note FONT_EVS uses a custom '&' character to display the ev symbol
+		if (progress < -99.9) 
+			{display.print("-99.9"); display.println("&");} 
+		else if (progress < -9.99) 
+			{display.print(progress, 1); display.println("&");}
+		else {
+			if (progress >= 0) // Explicitly print the '+' sign
+				{display.print("+");}
+			display.print(progress, 2); display.println("&");
+		}
+	} 
+
+	// Reset to system font
 	display.setFont();
-	
+
 	// Display exposure time
-	display.setCursor(1,64-8);
-	display.setTextSize(1); display.print("Time: "); 
+	display.setCursor(1,display.height()-8);
+	display.print("Time: "); 
 	if (millis_start > 0) {
-		display.print((float)(millis_end - millis_start) / 1000.0,1); display.println("s");
+		display.print( (float)(millis_end - millis_start) / 1000.0, 1);
+		display.println("s");
 	}
 	
 	// Show if wifi is connected with a little "antenna" in the corner
@@ -207,9 +221,9 @@ void update_display() {
 }
 
 void loop() {
-	// Check if the timer itnerrupt has set the semaphore
+	// Check if the timer interrupt has set the semaphore
 	if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
-		
+		// Read UV sensor data
 		if (ltr.newDataAvailable()) intensity = ltr.readUVS();
 		
 		// Accumulate exposure
@@ -221,8 +235,8 @@ void loop() {
 			if (millis_start == 0) millis_start = millis_end;
 		}
 
-		// Invert the display once full exposure is reached
-		display.invertDisplay(full_exposure > 0 && exposure > full_exposure);
+		// Invert the display once target exposure is reached
+		display.invertDisplay(target_exposure && exposure > target_exposure);
 		
 		update_display();
 	}
@@ -232,25 +246,28 @@ void loop() {
 		exposure = 0;
 		millis_start = 0;
 		break;
+	
 	case BUTTON_HELD_2000MS:
-		full_exposure = 0;
+		target_exposure = 0;
 		break;
+
 	default: break;
 	}
 
 	switch (handle_button(&set_target_button)) {
 	case BUTTON_HELD_500MS:
-		full_exposure = exposure;
+		target_exposure = exposure;
 		break;
+	
 	default: break;
 	}
 
-	switch (handle_button(&units_button))
-	{
+	switch (handle_button(&units_button)) {
 	case BUTTON_HELD_50MS:
-		units_pct_or_stops = !units_pct_or_stops;
+		units_mode = (units_mode + 1) % 3;
 		update_display();
 		break;
+	
 	default: break;
 	}
 	
