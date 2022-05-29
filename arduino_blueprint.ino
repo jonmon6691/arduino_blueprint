@@ -9,10 +9,10 @@
 #include <Adafruit_GFX.h>
 
 // Fonts
-#include "RobotoMono_Bold24pt7b.h"
-#include "RobotoMono_Bold22pt7b.h"
-#include "RobotoMono_Bold18pt7b.h"
-#include "RobotoMono_Bold15pt7b.h"
+#include "fonts/RobotoMono_Bold24pt7b.h"
+#include "fonts/RobotoMono_Bold22pt7b.h"
+#include "fonts/RobotoMono_Bold18pt7b.h"
+#include "fonts/RobotoMono_Bold15pt7b.h"
 #define FONT_PCT &RobotoMono_Bold24pt7b
 #define FONT_EVS &RobotoMono_Bold22pt7b
 #define FONT_RAW &RobotoMono_Bold18pt7b
