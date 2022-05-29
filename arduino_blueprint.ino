@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <math.h>
+#include "button.h"
 
 // OLED Headers
 #include <Adafruit_SH110X.h>
@@ -36,18 +37,8 @@ const char index_html[] PROGMEM = \
 #define BUTTON_B 32
 #define BUTTON_C 14
 
-#define RESET_BUTTON BUTTON_A
-unsigned long millis_last_reset_falling_edge;
-int last_reset_buttons_state;
+struct button clear_button, set_target_button, units_button;
 
-#define SET_TARGET_BUTTON BUTTON_B
-unsigned long millis_last_set_target_falling_edge;
-int last_set_target_state;
-
-#define UNITS_BUTTON BUTTON_C
-unsigned long millis_last_units_falling_edge;
-int units_wait_for_rising_edge;
-int last_units_state;
 int units_pct_or_stops; // 0 = percent, 1 = stops
 
 const char *ssid = WIFI_SSID;
@@ -72,10 +63,6 @@ unsigned long millis_start;
 unsigned long millis_end;
 
 void setup() {
-	pinMode(BUTTON_A, INPUT_PULLUP);
-	pinMode(BUTTON_B, INPUT_PULLUP);
-	pinMode(BUTTON_C, INPUT_PULLUP);
-	
 	Serial.begin(115200);
 
 	// Init display
@@ -129,13 +116,9 @@ void setup() {
 	millis_start = 0;
 
 	// Init buttons
-	millis_last_reset_falling_edge = 0;
-	last_reset_buttons_state = 1;
-	millis_last_set_target_falling_edge = 0;
-	last_set_target_state = 1;
-	millis_last_units_falling_edge = 0;
-	units_wait_for_rising_edge = 0;
-	last_units_state = 1;
+	init_button(&clear_button, BUTTON_A);
+	init_button(&set_target_button, BUTTON_B);
+	init_button(&units_button, BUTTON_C);
 
 	units_pct_or_stops = 0;
 
@@ -242,62 +225,32 @@ void loop() {
 		update_display();
 	}
 
-	// Process reset button
-	int reset_button_state = digitalRead(RESET_BUTTON);
-	// Falling edge (being pressed)
-	if (last_reset_buttons_state == 1 && reset_button_state == 0) {
-		millis_last_reset_falling_edge = millis();
+	switch (handle_button(&clear_button)) {
+	case BUTTON_HELD_500MS:
+		exposure = 0;
+		millis_start = 0;
+		break;
+	case BUTTON_HELD_2000MS:
+		full_exposure = 0;
+		break;
+	default: break;
 	}
-	// Low (being held)
-	if (last_reset_buttons_state == 0 && reset_button_state == 0) {
-		// If button has been held for 500ms, then reset
-		if (millis() - millis_last_reset_falling_edge > 500) {
-			exposure = 0;
-			millis_start = 0;
-		}
-		// If button has been held for 2s, then also clear the target exposure
-		if (millis() - millis_last_reset_falling_edge > 2000) {
-			full_exposure = 0;
-		}
-	}
-	last_reset_buttons_state = reset_button_state;
 
-	//Process set target button
-	int set_target_button_state = digitalRead(SET_TARGET_BUTTON);
-	// Falling edge (being pressed)
-	if (last_set_target_state == 1 && set_target_button_state == 0) {
-		millis_last_set_target_falling_edge = millis();
+	switch (handle_button(&set_target_button)) {
+	case BUTTON_HELD_500MS:
+		full_exposure = exposure;
+		break;
+	default: break;
 	}
-	// Low (being held)
-	if (last_set_target_state == 0 && set_target_button_state == 0) {
-		// If button has been held for 500ms, then set target
-		if (millis() - millis_last_set_target_falling_edge > 500) {
-			full_exposure = exposure;
-		}
-	}
-	last_set_target_state = set_target_button_state;
 
-	//Process units button
-	int units_button_state = digitalRead(UNITS_BUTTON);
-	// Falling edge (being pressed)
-	if (last_units_state == 1 && units_button_state == 0) {
-		millis_last_units_falling_edge = millis();
+	switch (handle_button(&units_button))
+	{
+	case BUTTON_HELD_50MS:
+		units_pct_or_stops = !units_pct_or_stops;
+		update_display();
+		break;
+	default: break;
 	}
-	// Low (being held)
-	if (last_units_state == 0 && units_button_state == 0) {
-		// If button has been held for 500ms, then toggle units
-		if (millis() - millis_last_units_falling_edge > 50 && \
-				units_wait_for_rising_edge == 0) {
-			units_pct_or_stops = !units_pct_or_stops;
-			units_wait_for_rising_edge = 1;
-			update_display();
-		}
-	}
-	// Rising edge (being released)
-	if (last_units_state == 0 && units_button_state == 1) {
-		units_wait_for_rising_edge = 0;
-	}
-	last_units_state = units_button_state;
 	
 	// Process http requests
 	server.handleClient();
