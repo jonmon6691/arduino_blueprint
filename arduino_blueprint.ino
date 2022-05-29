@@ -220,7 +220,7 @@ void loop() {
 		}
 
 		// Invert the display once full exposure is reached
-		display.invertDisplay(exposure > full_exposure);
+		display.invertDisplay(full_exposure > 0 && exposure > full_exposure);
 		
 		update_display();
 	}
