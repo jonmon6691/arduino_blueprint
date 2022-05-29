@@ -70,6 +70,8 @@ unsigned long millis_end;
 void setup() {
 	// Init display
 	display.begin(0x3C, true); // Address 0x3C default
+	display.clearDisplay();
+	display.display();
 	delay(250);
 	display.setRotation(1);
 	display.setTextSize(1);
