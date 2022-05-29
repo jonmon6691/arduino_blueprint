@@ -1,22 +1,30 @@
-# arduino_blueprint
+# Arduino Blueprint
 An Adafruit Feather based UV exposure meter for making cyanotypes and other alt process prints with repeatable consitency. Use Blueprint to find an exposure in controlled conditions, then it becomes possible to print in any condition, under sunlight, overcast, through a window, all without guesswork.
 
 ![Meter](docs/meter.jpg)
 
 ## Buttons
 ![Buttons](docs/buttons.jpg)
+
 - **Button A: Clear Current/Target Exposure Button.** Press and hold for half a second to clear the current exposure. Keep holding for 2 seconds to clear the current target exposure and go back to raw exposure mode.
 - **Button B: Set Target Exposure Button.** Press and hold for half a second to set the current exposure as the target exposure. You can then clear back to 0% by pressing and holding Button A for half a second.
 - **Button C: Change Units.** Click to cycle through the display units while in Target Exposure mode. Cycles betwen percentage, ev stops, and raw exposure value.
 
 ## Raw Exposure mode
-By default, Blueprint starts in Raw Exposure mode when it powers on. You can tell you're in raw exposure mode because the exposure value will _not_ have a percent symbol (%) after it
+<img src="docs/raw_exposure_mode.jpg" width="200">
+
+By default, Blueprint starts in Raw Exposure mode when it powers on. You can tell you're in raw exposure mode because the exposure value will _not_ have a unit after it.
 
 Use this mode to determine an exposure value that works well for a given negative. Then note the value after exposing and make adjustments depending on the result of the print. Save this number to set up target exposure mode.
 
-To enter raw exposure mode after setting a target, you must clear the current exposure and the target exposure. To do this, hold Button A for 2 seconds.
+To enter raw exposure mode after setting a target, you can change the unit display by clicking the C button until the unitless raw exposure is displayed. 
 
 ## Target Exposure mode
+| Under exposed | Over Exposed |   |
+| --- | --- | --- |
+| <img src="docs/target_percent_under.jpg" width="200"> | <img src="docs/target_percent_done.jpg" width="200"> | Percentage display |
+| <img src="docs/target_evs_under.jpg" width="200"> |  <img src="docs/target_evs_done.jpg" width="200"> | EV Stops display |
+
 Target exposure mode will take an exposure value determined in Raw Exposure mode and then display the exposure as a percentage of that raw value. Use this mode when printing a negative where you've already determined your desired exposure previously. You know you are in Target Exposure mode when the exposure value ends with a percent sign (%).
 
 There are two ways to enter Target Exposure mode:
