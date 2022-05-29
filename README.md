@@ -4,7 +4,7 @@ An Adafruit Feather based UV exposure meter for making cyanotypes and other alt 
 ![Meter](docs/meter.jpg)
 
 ## Buttons
-![Buttons](docs/buttons.jpg)
+<img src="docs/buttons.jpg" width="200" align="left">
 
 | Button | Function | Notes |
 | --- | --- | --- |
