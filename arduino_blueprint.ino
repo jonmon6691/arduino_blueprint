@@ -27,7 +27,6 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <uri/UriBraces.h>
-#include <uri/UriRegex.h>
 #include "wifi_login.h"
 
 // Served back to the client after any valid request
