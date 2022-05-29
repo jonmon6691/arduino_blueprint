@@ -208,9 +208,9 @@ void update_display() {
 }
 
 void loop() {
-	// Check if the timer itnerrupt has set the semaphore
+	// Check if the timer interrupt has set the semaphore
 	if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
-		
+		// Read UV sensor data
 		if (ltr.newDataAvailable()) intensity = ltr.readUVS();
 		
 		// Accumulate exposure
