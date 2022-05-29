@@ -63,8 +63,6 @@ unsigned long millis_start;
 unsigned long millis_end;
 
 void setup() {
-	Serial.begin(115200);
-
 	// Init display
 	display.begin(0x3C, true); // Address 0x3C default
 	delay(250);
@@ -85,9 +83,7 @@ void setup() {
 		display.print(".");
 		display.display();
 	}
-	if (MDNS.begin("blueprint")) {
-		Serial.println("MDNS responder started");
-	}
+	MDNS.begin("blueprint");
 
 	// Init UV sensor
 	while ( ! ltr.begin() ) {
