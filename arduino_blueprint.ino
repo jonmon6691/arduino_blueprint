@@ -180,7 +180,7 @@ void update_display() {
 			}
 		}
 	} else { // Raw Exposure mode
-		if (exposure < 1E5) 
+		if (exposure < 1E4) 
 			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.println(exposure);}
 		else if (exposure < 1E6)
 			{display.setCursor(1,1+8+8+20); display.setFont(FONT_STRUCT_18); display.setTextSize(1); display.println(exposure);}
