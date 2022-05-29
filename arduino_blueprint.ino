@@ -7,10 +7,16 @@
 // OLED Headers
 #include <Adafruit_SH110X.h>
 #include <Adafruit_GFX.h>
+
+// Fonts
 #include "RobotoMono_Bold24pt7b.h"
+#include "RobotoMono_Bold22pt7b.h"
 #include "RobotoMono_Bold18pt7b.h"
-#define FONT_STRUCT_24 &RobotoMono_Bold24pt7b
-#define FONT_STRUCT_18 &RobotoMono_Bold18pt7b
+#include "RobotoMono_Bold15pt7b.h"
+#define FONT_PCT &RobotoMono_Bold24pt7b
+#define FONT_EVS &RobotoMono_Bold22pt7b
+#define FONT_RAW &RobotoMono_Bold18pt7b
+#define FONT_RAW_E6 &RobotoMono_Bold15pt7b
 
 // Light sensor header
 #include "Adafruit_LTR390.h"
@@ -151,37 +157,37 @@ void update_display() {
 
 	// Update exposure data
 	display.setTextSize(1); display.print("Intensity: "); display.println(intensity);
-	display.setCursor(1,1+8);
+	display.setCursor(1,9);
 	display.setTextSize(1); display.println("Exposure: ");
-	display.setCursor(1,1+8+8+30);
 	if (full_exposure > 0) { // Target Exposire mode
 		float progress = (float) exposure / (float) full_exposure;
 		if (units_pct_or_stops == 0) { // Percentage units
 			progress *= 100;
-			display.setFont(FONT_STRUCT_24); 
+			display.setCursor(1,47);
+			display.setFont(FONT_PCT); 
 			display.setTextSize(1);
 			if (progress < 10.0) {display.print(progress, 2); display.println("%");}
 			else if (progress < 100.0) {display.print(progress, 1); display.println("%");}
 			else {display.print(progress, 0); display.println("%");}
 		} else { // EV Stop Units
-			display.setCursor(1,1+8+8+20);
-			display.setFont(FONT_STRUCT_18);
+			display.setCursor(1,45);
+			display.setFont(FONT_EVS);
 			display.setTextSize(1);
 			progress = log2f(progress);
-			if (progress < -99.9) {display.print("-99.9"); display.println("'");} 
-			else if (progress < -9.99) {display.print(progress, 1); display.println("'");}
+			if (progress < -99.9) {display.print("-99.9"); display.println("&");} 
+			else if (progress < -9.99) {display.print(progress, 1); display.println("&");}
 			else {
 				if (progress >= 0) display.print("+");
-				display.print(progress, 2); display.println("'");
+				display.print(progress, 2); display.println("&");
 			}
 		}
 	} else { // Raw Exposure mode
 		if (exposure < 1E4) 
-			{display.setFont(FONT_STRUCT_24); display.setTextSize(1); display.println(exposure);}
+			{display.setCursor(1,47); display.setFont(FONT_PCT); display.setTextSize(1); display.println(exposure);}
 		else if (exposure < 1E6)
-			{display.setCursor(1,1+8+8+20); display.setFont(FONT_STRUCT_18); display.setTextSize(1); display.println(exposure);}
-		else //TODO: Use a smaller font, determine new y-offset
-			{display.setFont(FONT_STRUCT_18); display.setTextSize(1); display.println(exposure);}
+			{display.setCursor(1,42); display.setFont(FONT_RAW); display.setTextSize(1); display.println(exposure);}
+		else
+			{display.setCursor(1,39); display.setFont(FONT_RAW_E6); display.setTextSize(1); display.println(exposure);}
 	}
 	display.setFont();
 	
