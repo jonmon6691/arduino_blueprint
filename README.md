@@ -6,12 +6,15 @@ An Adafruit Feather based UV exposure meter for making cyanotypes and other alt 
 ## Buttons
 ![Buttons](docs/buttons.jpg)
 
-- **Button A: Clear Current/Target Exposure Button.** Press and hold for half a second to clear the current exposure. Keep holding for 2 seconds to clear the current target exposure and go back to raw exposure mode.
-- **Button B: Set Target Exposure Button.** Press and hold for half a second to set the current exposure as the target exposure. You can then clear back to 0% by pressing and holding Button A for half a second.
-- **Button C: Change Units.** Click to cycle through the display units while in Target Exposure mode. Cycles betwen percentage, ev stops, and raw exposure value.
+| Button | Function | Notes |
+| --- | --- | --- |
+| A | Clear Current Exposure | Press and hold for half a second to clear the current exposure. Keep holding for 2 seconds to clear the current target exposure and go back to raw exposure mode. |
+| B | Set Target Exposure | Press and hold for half a second to set the current exposure as the target exposure. You can then clear back to 0% by pressing and holding Button A for half a second. |
+| C | Change Units | Click to cycle through the display units while in Target Exposure mode. Cycles betwen percentage, ev stops, and raw exposure value. |
+
 
 ## Raw Exposure mode
-<img src="docs/raw_exposure_mode.jpg" width="200">
+<img src="docs/raw_exposure_mode.jpg" width="200" align="left">
 
 By default, Blueprint starts in Raw Exposure mode when it powers on. You can tell you're in raw exposure mode because the exposure value will _not_ have a unit after it.
 
