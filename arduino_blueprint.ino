@@ -42,6 +42,8 @@ const char index_html[] PROGMEM = \
 #define BUTTON_B 32
 #define BUTTON_C 14
 
+#define VBATPIN A13
+
 struct button clear_button, set_target_button, units_button;
 
 int units_mode;
@@ -222,6 +224,12 @@ void update_display() {
 	if (WiFi.status() == WL_CONNECTED) {
 		display.drawChar(display.width() - 6, 0, 0x1F, 1, 0, 1);
 	}
+
+	// Show the battery voltage
+	float vbat = (float) analogRead(VBATPIN) * 1.8 * 2 / 2048.0;
+	display.setCursor(display.width() - 30, display.height() - 8);
+	display.print(vbat,2);
+	display.print("v");
 	
 	display.display();
 }
