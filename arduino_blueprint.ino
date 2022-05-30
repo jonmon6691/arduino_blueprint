@@ -49,6 +49,8 @@ int units_mode;
 #define UNITS_MODE_STOPS 1
 #define UNITS_MODE_RAW 2
 
+int screen_direction;
+
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
 
@@ -76,7 +78,10 @@ void setup() {
 	display.clearDisplay();
 	display.display();
 	delay(250);
-	display.setRotation(1);
+
+	screen_direction = 1;
+	display.setRotation(screen_direction ? 1 : 3);
+
 	display.setTextSize(1);
 	display.setTextColor(SH110X_WHITE);
 	display.setCursor(0,0);
@@ -158,6 +163,7 @@ void ARDUINO_ISR_ATTR onTimer(){
 void update_display() {
 	display.clearDisplay();
 
+	display.setRotation(screen_direction ? 1 : 3);
 	display.setCursor(1,1);
 	display.print("Intensity: ");
 	display.println(intensity);
@@ -266,6 +272,10 @@ void loop() {
 	case BUTTON_HELD_50MS:
 		units_mode = (units_mode + 1) % 3;
 		update_display();
+		break;
+
+	case BUTTON_HELD_500MS:
+		screen_direction = ! screen_direction;
 		break;
 	
 	default: break;
