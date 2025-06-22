@@ -114,12 +114,9 @@ void setup() {
 
 	// Create semaphore to inform us when the timer has fired
 	timerSemaphore = xSemaphoreCreateBinary();
-	timer = timerBegin(1, 80, true);
-	timerAttachInterrupt(timer, &onTimer, true);
-	timerAlarmWrite(timer, 500000, true); // true means repeat
-
-	// Start an alarm
-	timerAlarmEnable(timer);
+	timer = timerBegin(1000000);
+	timerAttachInterrupt(timer, &onTimer);
+	timerAlarm(timer, 500000, true, 0); // true means repeat
 
 	// Init exposure
 	exposure = 0;
